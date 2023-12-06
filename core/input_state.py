@@ -6,7 +6,10 @@ class InputState:
     """A class to represent the input state of the game."""
 
     def __init__(self):
-        self.update()
+        self.prev_keyboard_state = None
+        self.prev_mouse_state = None
+        self.cur_keyboard_state = pygame.key.get_pressed()
+        self.cur_mouse_state = pygame.mouse.get_pressed()
 
     def update(self):
         """Update the input state."""

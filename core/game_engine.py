@@ -1,6 +1,8 @@
+from types import SimpleNamespace
 from injector import inject
 import pygame
 import pymunk
+from core.enums.scene import Scene
 from core.input_state import InputState
 from core.services.scene_service import SceneService
 from core.services.score_service import ScoreService
@@ -16,21 +18,26 @@ class GameEngine:
         self,
         screen: pygame.Surface,
         space: pymunk.Space,
-        input_state: InputState,
         settings: Settings,
-        sceneservice: SceneService,
-        scoreservice: ScoreService,
+        scene_service: SceneService,
+        score_service: ScoreService,
     ):
-        self.input_state = input_state
+        self.input_state = InputState()
         self.screen = screen
         self.space = space
         self.settings = settings
-        self.sceneservice = sceneservice
-        self.scoreservice = scoreservice
         self.clock = pygame.time.Clock()
+
+        self.services = SimpleNamespace()
+        self.services.scene = scene_service
+        self.services.score = score_service
+
 
     def run_game_loop(self):
         """Run the game loop as long as running is true, sending the pygame.event QUIT will gracefully end the loop."""
+        self.services.scene.initialize_scenes()
+        self.services.scene.set_active_scene(Scene.MAINSCENE)
+
         running = True
         while running:
             timedelta = self.clock.tick(self.settings.fps) / 1000.0
@@ -55,13 +62,12 @@ class GameEngine:
 
     def handle_event(self, event):
         """Handle any non pygame.QUIT event. The event is passed down to all relevant services."""
-        self.sceneservice.handle_event(event)
-        self.scoreservice.handle_event(event)
+        self.services.scene.handle_event(event)
 
     def update(self, timedelta):
         """Update the game state for all relevant sources."""
 
-        self.sceneservice.update(timedelta, self.input_state)
+        self.services.scene.update(timedelta, self.input_state)
 
     def draw(self):
         """Draw the game state."""
@@ -69,4 +75,4 @@ class GameEngine:
         self.screen.fill((0, 0, 0))
 
         # Draw all relevant services
-        self.sceneservice.draw()
+        self.services.scene.draw(self.screen)

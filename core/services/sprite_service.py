@@ -37,10 +37,7 @@ class SpriteService(ServiceBase):
 
         # Add event handlers
         for spritesheet in self.repository.get_all_spritesheets():
-            spritesheet.events.on_log_message.add_observer(self.handle_log_message)
-
-        # Notify that the service is initialized
-        self.events.on_service_initialized.notify()
+            spritesheet.events.on_log_message += self.handle_log_message
 
     def get_sprite_from(self, type: SpriteType, name: str) -> Sprite:
         """Get a sprite from the library."""

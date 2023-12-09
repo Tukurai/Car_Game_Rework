@@ -10,12 +10,12 @@ from core.services.sprite_service import SpriteService
 from scenes.scene_base import SceneBase
 
 
-class RaceScene(SceneBase):
-    """The race scene, this is where the player will start racing."""
+class SettingsScene(SceneBase):
+    """The settings scene, this is where the player will be able to change the settings."""
 
     def __init__(self, screen: pygame.surface, services: SimpleNamespace):
         super().__init__(screen, services)
-        self.name = "race_scene"
+        self.name = "settings_scene"
 
         self.build_ui()
 

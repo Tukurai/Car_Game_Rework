@@ -9,9 +9,3 @@ class SoundService(ServiceBase):
     def __init__(self, log_service: LogService, settings: Settings):
         super().__init__(settings)
         self.services.logger = log_service
-        
-        # Add event handlers
-        self.events.on_service_initialized.add_observer(self.handle_service_initialized)
-
-        # Notify that the service is initialized
-        self.events.on_service_initialized.notify()

@@ -2,13 +2,12 @@ from types import SimpleNamespace
 from injector import inject
 import pygame
 from core.event_handler import EventHandler
-from core.services.sprite_service import SpriteService
 
 
 class SceneBase:
     """The base class for all scenes."""
 
-    def __init__(self, screen: pygame.surface, sprite_service: SpriteService):
+    def __init__(self, screen: pygame.surface, services: SimpleNamespace):
         """Initialize the scene with a name and a list of components. Also fetch the services from the DI container."""
         self.name = "base_scene"
         self.scene = None
@@ -16,8 +15,7 @@ class SceneBase:
         self.components = []
 
         # services
-        self.services = SimpleNamespace()
-        self.services.sprite = sprite_service
+        self.services = services
 
         self.initialize_components()
 

@@ -8,11 +8,13 @@ from core.enums.scene import Scene
 from core.event_handler import EventHandler
 from core.services.log_service import LogService
 from core.services.service_base import ServiceBase
+from core.services.sound_service import SoundService
 from core.services.sprite_service import SpriteService
 from scenes.main_scene import MainScene
 from scenes.race_scene import RaceScene
 from scenes.score_scene import ScoreScene
 from scenes.selection_scene import SelectionScene
+from scenes.settings_scene import SettingsScene
 from settings import Settings
 
 
@@ -22,12 +24,15 @@ class SceneService(ServiceBase):
         self,
         log_service: LogService,
         sprite_service: SpriteService,
+        sound_service: SoundService,
         settings: Settings,
         screen: pygame.Surface,
     ):
         super().__init__(settings)
         self.services.logger = log_service
         self.services.sprite = sprite_service
+        self.services.sound = sound_service
+        self.services.scene = self
         self.scenes = []
         self.active_scene = None
         self.screen = screen
@@ -43,19 +48,18 @@ class SceneService(ServiceBase):
         self.events.on_scene_changed = EventHandler()
 
         # Add event handlers
-        self.events.on_scene_changing.add_observer(self.handle_scene_changing)
-        self.events.on_scene_changed.add_observer(self.handle_scene_changed)
-
-        # Notify that the service is initialized
-        self.events.on_service_initialized.notify()
+        self.events.on_scene_changing += self.handle_scene_changing
+        self.events.on_scene_changed += self.handle_scene_changed
 
     def initialize_scenes(self):
         """Create all the scenes store them in a dictionary, using the Scene Enum as a key."""
         self.scenes = {
-            Scene.MAINSCENE: MainScene(self.screen, self.services.sprite),
-            Scene.SELECTIONSCENE: SelectionScene(self.screen, self.services.sprite),
-            Scene.RACESCENE: RaceScene(self.screen, self.services.sprite),
-            Scene.SCORESCENE: ScoreScene(self.screen, self.services.sprite),
+            Scene.MAINSCENE: MainScene(self.screen, self.services),
+            Scene.SINGLEPLAYERSCENE: SelectionScene(self.screen, self.services, 1),
+            Scene.MULTIPLAYERSCENE: SelectionScene(self.screen, self.services, 2),
+            Scene.RACESCENE: RaceScene(self.screen, self.services),
+            Scene.SCORESCENE: ScoreScene(self.screen, self.services),
+            Scene.SETTINGSSCENE: SettingsScene(self.screen, self.services),
         }
 
     def set_active_scene(self, next_scene: Scene):

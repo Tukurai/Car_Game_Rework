@@ -59,11 +59,13 @@ class Car:
         centered_x = self.x + (self.width / 2) - (text.get_width() / 2)
         centered_y = self.y + (self.height / 2) - (text.get_height() / 2)
 
+        tag_offset_y = 50
+        
         for x_offset in [-1, 1]:
             for y_offset in [-1, 1]:
-                screen.blit(text_outline, (centered_x + x_offset, centered_y + y_offset - 50))
+                screen.blit(text_outline, (centered_x + x_offset, centered_y + y_offset - tag_offset_y))
 
-        screen.blit(text, (centered_x, centered_y - 50))
+        screen.blit(text, (centered_x, centered_y - tag_offset_y))
 
     def handle_event(self, event):
         """Handle any non pygame.QUIT event."""

@@ -13,9 +13,6 @@ class LogService(ServiceBase):
         super().__init__(settings)
         self.history = []
 
-        # Notify that the service is initialized
-        self.events.on_service_initialized.notify()
-
     def log(self, message: str, log_level: LogLevel = LogLevel.INFO):
         """Log a message to the console, or a file."""
         if self.settings.log_level.value <= log_level.value:

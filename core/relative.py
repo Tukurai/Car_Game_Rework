@@ -7,4 +7,6 @@ class Relative(Position):
         self.relative_pos = relative_pos
 
     def get_pos(self) -> tuple[float, float]:
-        return self.relative_pos.get_pos() + super()
+        base = self.relative_pos.get_pos()
+        offset = super().get_pos()
+        return (base[0] + offset[0], base[1] + offset[1])

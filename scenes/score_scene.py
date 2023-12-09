@@ -1,11 +1,16 @@
+import pygame
+from core.services.sprite_service import SpriteService
 from scenes.scene_base import SceneBase
 
 
 class ScoreScene(SceneBase):
-    '''The score scene, this is where the player will see their score, and other highscores.'''
-    def __init__(self):
-        super().__init__()
+    """The score scene, this is where the player will see their score, and other highscores."""
+
+    def __init__(self, screen: pygame.surface, sprite_service: SpriteService):
+        super().__init__(screen, sprite_service)
         self.name = "score_scene"
+
+        self.build_ui()
 
         # Notify that the scene is initialized
         self.events.on_scene_initialized.notify()
@@ -18,3 +23,7 @@ class ScoreScene(SceneBase):
 
     def draw(self, screen):
         super().draw(screen)
+
+    def build_ui(self):
+        """Build the UI for the scene."""
+        pass

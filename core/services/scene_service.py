@@ -8,6 +8,7 @@ from core.enums.scene import Scene
 from core.event_handler import EventHandler
 from core.services.log_service import LogService
 from core.services.service_base import ServiceBase
+from core.services.sprite_service import SpriteService
 from scenes.main_scene import MainScene
 from scenes.race_scene import RaceScene
 from scenes.score_scene import ScoreScene
@@ -17,9 +18,16 @@ from settings import Settings
 
 class SceneService(ServiceBase):
     @inject
-    def __init__(self, log_service: LogService, settings: Settings, screen: pygame.Surface):
+    def __init__(
+        self,
+        log_service: LogService,
+        sprite_service: SpriteService,
+        settings: Settings,
+        screen: pygame.Surface,
+    ):
         super().__init__(settings)
         self.services.logger = log_service
+        self.services.sprite = sprite_service
         self.scenes = []
         self.active_scene = None
         self.screen = screen
@@ -44,10 +52,10 @@ class SceneService(ServiceBase):
     def initialize_scenes(self):
         """Create all the scenes store them in a dictionary, using the Scene Enum as a key."""
         self.scenes = {
-            Scene.MAINSCENE: MainScene(),
-            Scene.SELECTIONSCENE: SelectionScene(),
-            Scene.RACESCENE: RaceScene(),
-            Scene.SCORESCENE: ScoreScene(),
+            Scene.MAINSCENE: MainScene(self.screen, self.services.sprite),
+            Scene.SELECTIONSCENE: SelectionScene(self.screen, self.services.sprite),
+            Scene.RACESCENE: RaceScene(self.screen, self.services.sprite),
+            Scene.SCORESCENE: ScoreScene(self.screen, self.services.sprite),
         }
 
     def set_active_scene(self, next_scene: Scene):

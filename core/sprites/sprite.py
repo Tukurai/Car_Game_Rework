@@ -1,4 +1,5 @@
 from ast import Tuple
+import copy
 import pygame
 from core.position import Position
 from core.enums.sprite_type import SpriteType
@@ -32,6 +33,9 @@ class Sprite:
         sprite, offset = self.get_sprite()
         screen.blit(sprite, self.position + offset)
 
+    def copy(self):
+        return copy.copy(self)
+
     def get_scaled_size(self) -> tuple[int, int]:
         """Returns the scaled height of the object"""
         return (
@@ -53,18 +57,18 @@ class Sprite:
         """Returns a scaled, rotated surface with opacity, also return the center offset as a Position"""
         surface = pygame.transform.scale(surface, self.get_scaled_size())
 
-        center_offset = (0, 0)
+        center_offset = Position((0, 0))
         if self.rotation is not None:
             # Create a new surface with the image, rotated
             surface = pygame.transform.rotate(surface, -self.rotation)
             # Calculate the new upper left corner position of the rotated car
             rect = surface.get_rect()
-            original_rect = self.sprite.get_rect(topleft=(self.x, self.y))
+            original_rect = surface.get_rect(topleft=(self.position.x, self.position.y))
 
-            center_offset[0] = original_rect.centerx - rect.centerx
-            center_offset[1] = original_rect.centery - rect.centery
+            center_offset.x = original_rect.centerx - rect.centerx
+            center_offset.y = original_rect.centery - rect.centery
 
         surface = surface.convert_alpha()
         surface.set_alpha(self.opacity)
 
-        return (surface, Position(center_offset))
+        return (surface, center_offset)

@@ -36,7 +36,7 @@ class SpriteService(ServiceBase):
         self.populate_library()
 
         # Add event handlers
-        for spritesheet in vars(self.repository.get_all_spritesheets()):
+        for spritesheet in self.repository.get_all_spritesheets():
             spritesheet.events.on_log_message.add_observer(self.handle_log_message)
 
         # Notify that the service is initialized
@@ -44,7 +44,7 @@ class SpriteService(ServiceBase):
 
     def get_sprite_from(self, type: SpriteType, name: str) -> Sprite:
         """Get a sprite from the library."""
-        return self.library[type][name]
+        return self.library[type][name].copy()
 
     def populate_library(self):
         """Populate the sprite library."""

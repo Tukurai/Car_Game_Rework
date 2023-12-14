@@ -15,7 +15,7 @@ class LogService(ServiceBase):
 
     def log(self, message: str, log_level: LogLevel = LogLevel.INFO):
         """Log a message to the console, or a file."""
-        if self.settings.log_level.value <= log_level.value:
+        if Settings.LOG_LEVEL.value <= log_level.value:
             print(
                 f"{log_level} - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: {message}"
             )

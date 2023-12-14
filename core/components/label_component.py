@@ -17,34 +17,33 @@ class LabelComponent(ComponentBase):
         outline_color=(255, 255, 255),
         parent=None,
     ):
-        super().__init__(name, position, parent)
+        super().__init__(name, position, alignment, parent)
         self.text = text
-        self.alignment = alignment
         self.font = font
         self.font_size = font_size
         self.color = color
         self.outline_color = outline_color
 
+        self.font = pygame.font.Font(self.font, self.font_size)
+        self.scaled_size = self.font.size(self.text)
+
     def handle_event(self, event):
-        """Handle any non pygame.QUIT event"""
-        super().handle_event(event)
+        """This component does not handle events."""
+        return
 
     def update(self, timedelta, input_state):
-        """Update the component and all its children"""
-        super().update(timedelta, input_state)
+        """Update the component and all its children"""        
+        self.scaled_size = self.font.size(self.text)
 
     def draw(self, screen, opacity: int = 255):
         """Draw the component and all its children."""
-
-        # Set up the font
-        font = pygame.font.Font(self.font, self.font_size)
-
-        # Render the text, and center it
-        rendered_text = font.render(self.text, True, (255, 255, 255))
+        # Render the text with opacity, and center it
+        rendered_text = self.font.render(self.text, True, (255, 255, 255, opacity))
+        rendered_text.set_alpha(opacity)
         draw_x = self.position.get_pos()[0]
         draw_y = self.position.get_pos()[1]
 
-        rendered_text_size = font.size(self.text)
+        rendered_text_size = self.font.size(self.text)
         match self.alignment:
             case Alignment.LEFT:
                 draw_y -= rendered_text_size[1] / 2.0
@@ -56,7 +55,8 @@ class LabelComponent(ComponentBase):
                 draw_y -= rendered_text_size[1] / 2.0
 
         # Draw the outline first
-        rendered_text_outline = font.render(self.text, True, (0, 0, 0))
+        rendered_text_outline = self.font.render(self.text, True, (0, 0, 0))
+        rendered_text_outline.set_alpha(opacity)
 
         for x_offset in [-1, 1]:
             for y_offset in [-1, 1]:
@@ -64,7 +64,7 @@ class LabelComponent(ComponentBase):
                     rendered_text_outline, (draw_x + x_offset, draw_y + y_offset)
                 )
 
-        # Draw the text
+        # Draw the text with opacity
         screen.blit(rendered_text, (draw_x, draw_y))
 
         super().draw(screen, opacity)  # Draw children after the background

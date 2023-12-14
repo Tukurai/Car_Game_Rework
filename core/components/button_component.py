@@ -24,9 +24,10 @@ class ButtonComponent(ComponentBase):
         font=None,
         color=(0, 0, 0),
         outline_color=(255, 255, 255),
+        alignment: Alignment = None,
         parent=None,
     ):
-        super().__init__(name, position, parent)
+        super().__init__(name, position, alignment, parent)
         self.text = text
         self.font = font
         self.font_size = font_size
@@ -44,7 +45,6 @@ class ButtonComponent(ComponentBase):
         self.active = False
 
         self.scaled_size = self.background_sprite.get_scaled_size()
-        self.alignment = None
 
         text_component = LabelComponent(
             f"{self.name}_text",
@@ -66,8 +66,6 @@ class ButtonComponent(ComponentBase):
 
     def handle_event(self, event):
         """Handle any non pygame.QUIT event, the button uses this to check for the pygame mouse events."""
-        super().handle_event(event)
-
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.hover is True:
                 self.active = True
@@ -106,25 +104,3 @@ class ButtonComponent(ComponentBase):
             self.background_sprite.get_scaled_size()[0],
             self.background_sprite.get_scaled_size()[1],
         ).collidepoint(pygame.mouse.get_pos())
-
-    def align(self, alignment: Alignment):
-        """Align the button to the center of the position."""
-        self.restore_alignment(self, self.alignment)
-
-        if self.alignment != alignment:
-            match alignment:
-                case Alignment.CENTER:
-                    self.position.x -= self.background_sprite.get_scaled_size()[0] / 2
-                case Alignment.RIGHT:
-                    self.position.x -= self.background_sprite.get_scaled_size()[0]
-
-    def restore_alignment(self, component, alignment: Alignment):
-        """Restore the alignment of the component."""
-        if alignment is None:
-            return
-        
-        match alignment:
-            case Alignment.CENTER:
-                component.position.x += self.background_sprite.get_scaled_size()[0] / 2
-            case Alignment.RIGHT:
-                component.position.x += self.background_sprite.get_scaled_size()[0]

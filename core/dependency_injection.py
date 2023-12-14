@@ -1,8 +1,6 @@
 import pygame
-import pymunk
 from injector import Injector, singleton
 from core.game_engine import GameEngine
-from core.input_state import InputState
 from core.services.collision_service import CollisionService
 from core.services.log_service import LogService
 from core.services.map_service import MapService
@@ -43,7 +41,6 @@ class DI:
         binder.bind(Settings, to=settings, scope=singleton)
 
         binder.bind(pygame.Surface, to=pygame.display.set_mode(settings.resolution), scope=singleton)
-        binder.bind(pymunk.Space, to=pymunk.Space(), scope=singleton)
 
         binder.bind(LogService, to=LogService, scope=singleton)
         binder.bind(CollisionService, to=CollisionService, scope=singleton)

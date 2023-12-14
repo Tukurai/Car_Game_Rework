@@ -6,6 +6,7 @@ from core.car_properties import CarProperties
 from core.car_statistics import CarStatistics
 from core.enums.direction import Direction
 from core.event_handler import EventHandler
+from core.input_state import InputState
 from core.position import Position
 from core.relative import Relative
 from core.sprites.sprite import Sprite
@@ -27,20 +28,34 @@ class Car:
         self.statistics = CarStatistics()
 
         self.score = 0
+        self.lap = 0
         self.penalties = 0
+        self.place = 0
 
-        self.sprite.position = Relative(self.position,(0,0))
+        self.sprite.position = Relative(self.position, (0, 0))
 
         # Create events
         self.events = SimpleNamespace()
         self.events.on_car_driving = EventHandler()
         self.events.on_car_reset = EventHandler()
 
+    def set_position(self, position: Position):
+        """Set the position of the car, also altering the sprite position relatively.
+        Replacing the position property will not alter the sprite position."""
+        self.position.x = position.x
+        self.position.y = position.y
+
+    def set_rotation(self, rotation: float):
+        """Set the rotation of the car, also altering the sprite rotation relatively.
+        Replacing the rotation property will not alter the sprite rotation."""
+        self.statistics.current.rotation = rotation
+        self.sprite.rotation = rotation
+
     def get_size(self) -> tuple[int, int]:
         """Return the size of the car after applying scale."""
         return (int(self.__size * self.__scale), int(self.__size * self.__scale))
 
-    def update(self, delta_time: float):
+    def update(self, delta_time: float, input_state: InputState):
         """Update the car."""
 
         # Update the car statistics
@@ -56,14 +71,25 @@ class Car:
         text = font.render(self.name, True, (255, 255, 255))
         text_outline = font.render(self.name, True, (0, 0, 0))
 
-        centered_x = self.x + (self.width / 2) - (text.get_width() / 2)
-        centered_y = self.y + (self.height / 2) - (text.get_height() / 2)
+        centered_x = (
+            self.position.get_pos()[0]
+            + (self.sprite.get_scaled_size()[0] / 2)
+            - (text.get_width() / 2)
+        )
+        centered_y = (
+            self.position.get_pos()[1]
+            + (self.sprite.get_scaled_size()[1] / 2)
+            - (text.get_height() / 2)
+        )
 
         tag_offset_y = 50
-        
+
         for x_offset in [-1, 1]:
             for y_offset in [-1, 1]:
-                screen.blit(text_outline, (centered_x + x_offset, centered_y + y_offset - tag_offset_y))
+                screen.blit(
+                    text_outline,
+                    (centered_x + x_offset, centered_y + y_offset - tag_offset_y),
+                )
 
         screen.blit(text, (centered_x, centered_y - tag_offset_y))
 
@@ -81,8 +107,8 @@ class Car:
     def speed_limiter(self, speed_mod: int) -> int:
         """Limit the speed of the car."""
         new_speed = self.statistics.current.speed + speed_mod
-        min_speed = -(self.properties.speed / 2)
-        max_speed = self.properties.speed
+        min_speed = -(self.properties.max_speed / 2)
+        max_speed = self.properties.max_speed
 
         return max(min_speed, min(new_speed, max_speed))
 
@@ -96,7 +122,7 @@ class Car:
             case Direction.UP:
                 current_speed = self.speed_limiter(properties.acceleration)
             case Direction.DOWN:
-                current_speed = self.speed_limiter(-(properties.acceleration * 2))
+                current_speed = self.speed_limiter(-(properties.braking))
             case Direction.LEFT:
                 if current_speed != 0:
                     self.rotation_direction = Direction.LEFT
@@ -105,9 +131,9 @@ class Car:
                 if current_speed != 0:
                     self.rotation_direction = Direction.RIGHT
                     current_rotation = (current_rotation + properties.handling) % 360
-        
+
         self.statistics.current.speed = current_speed
-        self.statistics.current.rotation = current_rotation
+        self.set_rotation(current_rotation)
 
     def move(self, timedelta, collisions):
         """Move the car, and handle collisions"""

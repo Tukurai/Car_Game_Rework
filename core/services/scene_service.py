@@ -3,10 +3,14 @@ from injector import inject
 from types import SimpleNamespace
 
 import pygame
+from core.components.label_component import LabelComponent
+from core.enums.alignment import Alignment
 from core.enums.log_level import LogLevel
 from core.enums.scene import Scene
 from core.event_handler import EventHandler
+from core.position import Position
 from core.services.log_service import LogService
+from core.services.map_service import MapService
 from core.services.service_base import ServiceBase
 from core.services.sound_service import SoundService
 from core.services.sprite_service import SpriteService
@@ -25,6 +29,7 @@ class SceneService(ServiceBase):
         log_service: LogService,
         sprite_service: SpriteService,
         sound_service: SoundService,
+        map_service: MapService,
         settings: Settings,
         screen: pygame.Surface,
     ):
@@ -32,10 +37,19 @@ class SceneService(ServiceBase):
         self.services.logger = log_service
         self.services.sprite = sprite_service
         self.services.sound = sound_service
+        self.services.map = map_service
         self.services.scene = self
         self.scenes = []
         self.active_scene = None
         self.screen = screen
+        self.fps_label = LabelComponent(
+            "fps_label",
+            Position((30, 10)),
+            "",
+            Alignment.CENTER,
+            16,
+            parent=self,
+        )
 
         self.transition = SimpleNamespace(
             active=False,
@@ -56,16 +70,23 @@ class SceneService(ServiceBase):
         self.scenes = {
             Scene.MAINSCENE: MainScene(self.screen, self.services),
             Scene.SINGLEPLAYERSCENE: SelectionScene(self.screen, self.services, 1),
-            Scene.MULTIPLAYERSCENE: SelectionScene(self.screen, self.services, 2),
+            Scene.MULTIPLAYER2PSCENE: SelectionScene(self.screen, self.services, 2),
+            Scene.MULTIPLAYER3PSCENE: SelectionScene(self.screen, self.services, 3),
+            Scene.MULTIPLAYER4PSCENE: SelectionScene(self.screen, self.services, 4),
             Scene.RACESCENE: RaceScene(self.screen, self.services),
             Scene.SCORESCENE: ScoreScene(self.screen, self.services),
             Scene.SETTINGSSCENE: SettingsScene(self.screen, self.services),
         }
 
+    def get_scene(self, scene: Scene):
+        """Get a scene by its enum."""
+        return self.scenes[scene]
+
     def set_active_scene(self, next_scene: Scene):
         """Set the active scene."""
         if not self.transition.active and self.active_scene != None:
             self.events.on_scene_changing.notify(next_scene)
+            self.get_scene(next_scene).preload()
             self.transition.active = True
             self.transition.next_scene = next_scene
             self.transition.next_scene_opacity = 0
@@ -78,27 +99,36 @@ class SceneService(ServiceBase):
 
     def handle_event(self, event):
         """Handle any non pygame.QUIT event. The event is passed down to the active scene."""
-        if self.active_scene:
+        if self.transition.active:
+            self.get_scene(self.transition.next_scene).handle_event(event)
+        elif self.active_scene:
             self.active_scene.handle_event(event)
 
     def update(self, timedelta, input_state):
         """Update the game state for all relevant sources."""
+        self.fps_label.text = f"FPS: {1 // timedelta}"
+
         if self.transition.active:
             transition_tick = 255 / (
-                math.floor(self.settings.transition_speed * self.settings.fps)
+                math.floor(Settings.TRANSITION_SPEED * Settings.FPS)
             )
             self.transition.next_scene_opacity += transition_tick
+            self.get_scene(self.transition.next_scene).update(timedelta, input_state)
             if self.transition.next_scene_opacity >= 255:
                 self.set_active_scene(self.transition.next_scene)
-            return  # do not update the active scene during a transition
-
-        if self.active_scene:
+        elif self.active_scene:
             self.active_scene.update(timedelta, input_state)
 
     def draw(self, screen):
         """Draw the active screen's components."""
-        if self.active_scene:
-            self.active_scene.draw(self.screen)
+        if self.transition.active:
+            self.get_scene(self.transition.next_scene).draw(
+                self.screen, self.transition.next_scene_opacity
+            )
+        elif self.active_scene:
+            self.active_scene.draw(self.screen, 255)
+
+        self.fps_label.draw(self.screen)
 
     # ------------------------------
     # Event handlers

@@ -21,3 +21,24 @@ class Position:
             return (base.x - other.x, base.y - other.y)
         else:
             raise TypeError("Unsupported operand type for -")
+        
+    def __mul__(self, other) -> tuple[float, float]:
+        if isinstance(other, float | int):
+            base = Position(self.get_pos())
+            return (base.x * other, base.y * other)
+        else:
+            raise TypeError("Unsupported operand type for *")
+        
+    def __truediv__(self, other) -> tuple[float, float]:
+        if isinstance(other, float | int):
+            base = Position(self.get_pos())
+            return (base.x / other, base.y / other)
+        else:
+            raise TypeError("Unsupported operand type for /")
+        
+    def __floordiv__(self, other) -> tuple[float, float]:
+        if isinstance(other, float | int):
+            base = Position(self.get_pos())
+            return (base.x // other, base.y // other)
+        else:
+            raise TypeError("Unsupported operand type for //")

@@ -1,5 +1,6 @@
 import pygame
 from core.components.component_base import ComponentBase
+from core.enums.alignment import Alignment
 from core.position import Position
 
 
@@ -18,9 +19,10 @@ class SliderComponent(ComponentBase):
         min_value: int,
         max_value: int,
         value: int,
+        alignment: Alignment = None,
         parent=None,
     ):
-        super().__init__(name, position, parent)
+        super().__init__(name, position, alignment, parent)
         self.text = text
         self.font = font
         self.color = color

@@ -39,6 +39,10 @@ class SceneBase:
         for component in self.components:
             component.draw(screen, opacity)
 
+    def preload(self):
+        """Preload event triggered after the scene is started transitioning in."""
+        pass
+
     def initialize_components(self):
         """Create all components and initialize them."""
         for component in self.components:

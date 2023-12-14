@@ -39,9 +39,15 @@ class SpriteService(ServiceBase):
         for spritesheet in self.repository.get_all_spritesheets():
             spritesheet.events.on_log_message += self.handle_log_message
 
-    def get_sprite_from(self, type: SpriteType, name: str) -> Sprite:
+    def get_sprite_from(self, type: SpriteType, key: str | int) -> Sprite:
         """Get a sprite from the library."""
-        return self.library[type][name].copy()
+        if isinstance(key, int):
+            library = self.library[type].values()
+            for sprite in library:
+                if sprite.id == key:
+                    return sprite.copy()
+        else:
+            return self.library[type][key].copy()
 
     def populate_library(self):
         """Populate the sprite library."""
@@ -51,16 +57,21 @@ class SpriteService(ServiceBase):
 
     def populate_library_type(self, type: SpriteType, spritesheet: Spritesheet):
         """Populate the sprite library for a specific type."""
-        if type not in self.library:
-            self.library[type] = {}
+        next_id = 0
 
         for name in spritesheet.get_sprite_atlas().keys():
+            if type not in self.library:
+                self.library[type] = {}
+            else:
+                next_id = list(self.library[type].values())[-1].id + 1
+
             self.library[type][name] = Sprite(
                 spritesheet.get_sprite(name),
                 spritesheet.get_mask_from_layer(name, 1),
                 name,
+                next_id,
                 type,
-                scale=self.settings.scale[type],
+                scale=Settings.SCALE[type],
             )
 
     def handle_log_message(self, message: str, log_level: LogLevel):

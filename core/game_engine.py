@@ -1,7 +1,6 @@
 from types import SimpleNamespace
 from injector import inject
 import pygame
-import pymunk
 from core.enums.scene import Scene
 from core.input_state import InputState
 from core.services.scene_service import SceneService
@@ -17,14 +16,12 @@ class GameEngine:
     def __init__(
         self,
         screen: pygame.Surface,
-        space: pymunk.Space,
         settings: Settings,
         scene_service: SceneService,
         score_service: ScoreService,
     ):
         self.input_state = InputState()
         self.screen = screen
-        self.space = space
         self.settings = settings
         self.clock = pygame.time.Clock()
 
@@ -40,7 +37,7 @@ class GameEngine:
 
         running = True
         while running:
-            timedelta = self.clock.tick(self.settings.fps) / 1000.0
+            timedelta = self.clock.tick(Settings.FPS) / 1000.0
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

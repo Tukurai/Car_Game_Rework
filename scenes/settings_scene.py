@@ -28,8 +28,8 @@ class SettingsScene(SceneBase):
     def update(self, timedelta, input_state):
         super().update(timedelta, input_state)
 
-    def draw(self, screen):
-        super().draw(screen)
+    def draw(self, screen, opacity: int = 255):
+        super().draw(screen, opacity)
 
     def build_ui(self):
         """Build the UI for the scene."""
@@ -43,7 +43,7 @@ class SettingsScene(SceneBase):
             self.services.sprite.get_sprite_from(SpriteType.UI, "green_button01.png"),
             parent=self,
         )
-        back_button.align(Alignment.RIGHT)
+        back_button.align(Alignment.RIGHT, back_button.scaled_size[0])
         back_button.events.on_button_clicked += self.back
 
         self.components.append(back_button)

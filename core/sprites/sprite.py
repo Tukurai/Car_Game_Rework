@@ -11,15 +11,17 @@ class Sprite:
         surface: pygame.Surface,
         mask: pygame.Surface,
         name: str,
+        id: int,
         sprite_type: SpriteType,
         position: Position = Position((0, 0)),
-        rotation: float = 0,
+        rotation: float = None,
         scale: float = 1.0,
         opacity: int = 255,
     ):
         self.surface = surface
         self.mask = mask
         self.name = name
+        self.id = id
         self.sprite_type = sprite_type
 
         self.position = position

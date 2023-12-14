@@ -29,8 +29,8 @@ class MainScene(SceneBase):
     def update(self, timedelta, input_state):
         super().update(timedelta, input_state)
 
-    def draw(self, screen):
-        super().draw(screen)
+    def draw(self, screen, opacity: int = 255):
+        super().draw(screen, opacity)
 
     def build_ui(self):
         """Build the UI for the scene."""
@@ -56,24 +56,48 @@ class MainScene(SceneBase):
             self.services.sprite.get_sprite_from(SpriteType.UI, "green_button01.png"),
             parent=self,
         )
-        singleplayer_button.align(Alignment.CENTER)
+        singleplayer_button.align(Alignment.CENTER, singleplayer_button.scaled_size[0])
         singleplayer_button.events.on_button_clicked += self.singleplayer_start
 
-        multiplayer_button = ButtonComponent(
-            "multiplayer",
+        multiplayer_2p_button = ButtonComponent(
+            "multiplayer_2p",
             Relative(singleplayer_button.position, (0, button_y_offset)),
-            "Multiplayer",
+            "Multiplayer 2P",
             30,
             self.services.sprite.get_sprite_from(SpriteType.UI, "blue_button00.png"),
             self.services.sprite.get_sprite_from(SpriteType.UI, "green_button00.png"),
             self.services.sprite.get_sprite_from(SpriteType.UI, "green_button01.png"),
             parent=self,
         )
-        multiplayer_button.events.on_button_clicked += self.multiplayer_start
+        multiplayer_2p_button.events.on_button_clicked += self.multiplayer_2p_start
+
+        multiplayer_3p_button = ButtonComponent(
+            "multiplayer_3p",
+            Relative(multiplayer_2p_button.position, (0, button_y_offset)),
+            "Multiplayer 3P",
+            30,
+            self.services.sprite.get_sprite_from(SpriteType.UI, "blue_button00.png"),
+            self.services.sprite.get_sprite_from(SpriteType.UI, "green_button00.png"),
+            self.services.sprite.get_sprite_from(SpriteType.UI, "green_button01.png"),
+            parent=self,
+        )
+        multiplayer_3p_button.events.on_button_clicked += self.multiplayer_3p_start
+        
+        multiplayer_4p_button = ButtonComponent(
+            "multiplayer_4p",
+            Relative(multiplayer_3p_button.position, (0, button_y_offset)),
+            "Multiplayer 4P",
+            30,
+            self.services.sprite.get_sprite_from(SpriteType.UI, "blue_button00.png"),
+            self.services.sprite.get_sprite_from(SpriteType.UI, "green_button00.png"),
+            self.services.sprite.get_sprite_from(SpriteType.UI, "green_button01.png"),
+            parent=self,
+        )
+        multiplayer_4p_button.events.on_button_clicked += self.multiplayer_4p_start
 
         highscores_button = ButtonComponent(
             "highscores",
-            Relative(multiplayer_button.position, (0, button_y_offset)),
+            Relative(multiplayer_4p_button.position, (0, button_y_offset)),
             "Highscores",
             30,
             self.services.sprite.get_sprite_from(SpriteType.UI, "blue_button00.png"),
@@ -109,7 +133,9 @@ class MainScene(SceneBase):
 
         self.components.append(race_label)
         self.components.append(singleplayer_button)
-        self.components.append(multiplayer_button)
+        self.components.append(multiplayer_2p_button)
+        self.components.append(multiplayer_3p_button)
+        self.components.append(multiplayer_4p_button)
         self.components.append(highscores_button)
         self.components.append(settings_button)
         self.components.append(exit_button)
@@ -119,10 +145,20 @@ class MainScene(SceneBase):
         self.services.logger.log(f"clicked on {sender.name}", LogLevel.DEBUG)
         self.services.scene.set_active_scene(Scene.SINGLEPLAYERSCENE)
 
-    def multiplayer_start(self, sender: ButtonComponent):
+    def multiplayer_2p_start(self, sender: ButtonComponent):
         """Start the multiplayer scene."""
         self.services.logger.log(f"clicked on {sender.name}", LogLevel.DEBUG)
-        self.services.scene.set_active_scene(Scene.MULTIPLAYERSCENE)
+        self.services.scene.set_active_scene(Scene.MULTIPLAYER2PSCENE)
+        
+    def multiplayer_3p_start(self, sender: ButtonComponent):
+        """Start the multiplayer scene."""
+        self.services.logger.log(f"clicked on {sender.name}", LogLevel.DEBUG)
+        self.services.scene.set_active_scene(Scene.MULTIPLAYER3PSCENE)
+        
+    def multiplayer_4p_start(self, sender: ButtonComponent):
+        """Start the multiplayer scene."""
+        self.services.logger.log(f"clicked on {sender.name}", LogLevel.DEBUG)
+        self.services.scene.set_active_scene(Scene.MULTIPLAYER4PSCENE)
 
     def show_highscores(self, sender: ButtonComponent):
         """Start the highscores scene."""

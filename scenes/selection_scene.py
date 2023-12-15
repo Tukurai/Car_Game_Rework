@@ -129,6 +129,7 @@ class SelectionScene(SceneBase):
         race = self.services.scene.get_scene(Scene.RACESCENE)
         car_copy = copy.copy(car)
         car_copy.name = nickname
+        car_copy.name_label.text = nickname
         car_copy.controls = self.get_controls_for(player_id)
         race.add_player(car_copy)
 

@@ -27,11 +27,12 @@ class Map:
         direction = self.get_direction(self.checkpoints[0], self.checkpoints[1])
 
         # offset the starting positions to be behind the start line
+        base_offset = 160
         offset_values = {
-            Direction.UP: (0, 40),
-            Direction.DOWN: (0, -40),
-            Direction.LEFT: (40, 0),
-            Direction.RIGHT: (-40, 0),
+            Direction.UP: (0, base_offset),
+            Direction.DOWN: (0, -base_offset),
+            Direction.LEFT: (base_offset, 0),
+            Direction.RIGHT: (-base_offset, 0),
         }
         centerpoint += (
             Position(offset_values[direction]) * Settings.SCALE[SpriteType.GLOBAL]
@@ -41,7 +42,7 @@ class Map:
         for index in range(amount):
             pair_index = index % 2
             row_index = index // 2
-            pair_offset = 50
+            pair_offset = 20
             row_offset = 140 * Settings.SCALE[SpriteType.VEHICLE]
 
             starting_position = Position(centerpoint)
@@ -61,16 +62,7 @@ class Map:
                 )
                 starting_position.y += pair_offset if pair_index else -pair_offset
 
-            # Offset the car based on the direction
-            car_offset_values = {
-                Direction.UP: (8, -18),
-                Direction.DOWN: (8, -18),
-                Direction.LEFT: (3, 8),
-                Direction.RIGHT: (-18, 8),
-            }
-            starting_position += Position(car_offset_values[direction])
-
-            yield (index, starting_position, direction)
+            yield (index, starting_position.get_pos(), direction)
 
     def get_direction(self, checkpoint_a: Position, checkpoint_b: Position):
         """Get the direction between the two provided checkpoints."""

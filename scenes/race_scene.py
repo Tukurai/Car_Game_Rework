@@ -78,6 +78,7 @@ class RaceScene(SceneBase):
         if self.started:
             for player in self.players:
                 player.update(timedelta, input_state)
+                self.services.collision.update(timedelta, input_state, self.map, self.players)
 
     def draw(self, screen, opacity: int = 255):
         if self.map is not None:
@@ -156,7 +157,7 @@ class RaceScene(SceneBase):
         """Get the car options for the ai car"""
         return [
             Car(
-                f"{color} AI Car {index}",
+                f"{color} C-{index}",
                 self.services.sprite.get_sprite_from(SpriteType.VEHICLE, sprite),
                 Position((0, 0)),
                 properties,

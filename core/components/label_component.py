@@ -33,7 +33,7 @@ class LabelComponent(ComponentBase):
 
     def update(self, timedelta, input_state):
         """Update the component and all its children"""        
-        self.scaled_size = self.font.size(self.text)
+        return
 
     def draw(self, screen, opacity: int = 255):
         """Draw the component and all its children."""
@@ -43,16 +43,16 @@ class LabelComponent(ComponentBase):
         draw_x = self.position.get_pos()[0]
         draw_y = self.position.get_pos()[1]
 
-        rendered_text_size = self.font.size(self.text)
+        self.scaled_size = self.font.size(self.text)
         match self.alignment:
             case Alignment.LEFT:
-                draw_y -= rendered_text_size[1] / 2.0
+                draw_y -= self.scaled_size[1] / 2.0
             case Alignment.CENTER:
-                draw_x -= rendered_text_size[0] / 2.0
-                draw_y -= rendered_text_size[1] / 2.0
+                draw_x -= self.scaled_size[0] / 2.0
+                draw_y -= self.scaled_size[1] / 2.0
             case Alignment.RIGHT:
-                draw_x -= rendered_text_size[0]
-                draw_y -= rendered_text_size[1] / 2.0
+                draw_x -= self.scaled_size[0]
+                draw_y -= self.scaled_size[1] / 2.0
 
         # Draw the outline first
         rendered_text_outline = self.font.render(self.text, True, (0, 0, 0))

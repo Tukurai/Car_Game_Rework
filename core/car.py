@@ -1,9 +1,12 @@
+import copy
 import math
 from types import SimpleNamespace
 
 import pygame
 from core.car_properties import CarProperties
 from core.car_statistics import CarStatistics
+from core.components.label_component import LabelComponent
+from core.enums.alignment import Alignment
 from core.enums.direction import Direction
 from core.event_handler import EventHandler
 from core.input_state import InputState
@@ -34,6 +37,17 @@ class Car:
 
         self.sprite.position = Relative(self.position, (0, 0))
 
+        self.name_label = LabelComponent(
+            f"{self.name}_name",
+            Relative(self.position, (0, -20)),
+            self.name,
+            Alignment.CENTER,
+            14,
+            color=(255, 255, 255),
+            outline_color=(0, 0, 0),
+            parent=self,
+        )
+
         # Create events
         self.events = SimpleNamespace()
         self.events.on_car_driving = EventHandler()
@@ -42,8 +56,9 @@ class Car:
     def set_position(self, position: Position):
         """Set the position of the car, also altering the sprite position relatively.
         Replacing the position property will not alter the sprite position."""
-        self.position.x = position.x
-        self.position.y = position.y
+        self.position = position
+        self.sprite.position = Relative(self.position, (0, 0))
+        self.name_label.position = Relative(self.position, (0, -20))
 
     def set_rotation(self, rotation: float):
         """Set the rotation of the car, also altering the sprite rotation relatively.
@@ -57,8 +72,6 @@ class Car:
 
     def update(self, delta_time: float, input_state: InputState):
         """Update the car."""
-
-        # Update the car statistics
         self.statistics.update()
 
     def draw(self, screen, opacity: int = 255):
@@ -67,31 +80,7 @@ class Car:
         self.sprite.draw(screen, opacity)
 
         # Draw the name
-        font = pygame.font.Font(None, 24)
-        text = font.render(self.name, True, (255, 255, 255))
-        text_outline = font.render(self.name, True, (0, 0, 0))
-
-        centered_x = (
-            self.position.get_pos()[0]
-            + (self.sprite.get_scaled_size()[0] / 2)
-            - (text.get_width() / 2)
-        )
-        centered_y = (
-            self.position.get_pos()[1]
-            + (self.sprite.get_scaled_size()[1] / 2)
-            - (text.get_height() / 2)
-        )
-
-        tag_offset_y = 50
-
-        for x_offset in [-1, 1]:
-            for y_offset in [-1, 1]:
-                screen.blit(
-                    text_outline,
-                    (centered_x + x_offset, centered_y + y_offset - tag_offset_y),
-                )
-
-        screen.blit(text, (centered_x, centered_y - tag_offset_y))
+        self.name_label.draw(screen, opacity)
 
     def handle_event(self, event):
         """Handle any non pygame.QUIT event."""
@@ -138,24 +127,23 @@ class Car:
     def move(self, timedelta, collisions):
         """Move the car, and handle collisions"""
         self.events.on_car_driving.notify(self)
-        self.previous_position = self.position
+        self.previous_position = copy.copy(self.position)
 
-        rad = math.radians(self.rotation)
-        dx = self.current_speed * math.sin(rad) * timedelta
-        dy = -self.current_speed * math.cos(rad) * timedelta
+        rad = math.radians(self.statistics.current.rotation)
+        direction_x = self.statistics.current.speed * math.sin(rad) * timedelta
+        direction_y = -self.statistics.current.speed * math.cos(rad) * timedelta
 
         if collisions:
             self.handle_collisions(collisions)
         else:
-            if self.statistics.current.timeout > 0:
-                self.statistics.current.timeout -= 1
+            if self.statistics.current.tolerance > 0:
+                self.statistics.current.tolerance -= 1
 
-        if self.timeout > self.tolerance:
+        if self.statistics.current.tolerance > self.properties.tolerance:
             self.reset_to_last_checkpoint()
             return
 
-        self.position[0] += dx
-        self.position[1] += dy
+        self.set_position(Position((direction_x, direction_y)))
 
     def handle_collisions(self, collisions):
         """Handle collisions with other objects."""
@@ -163,7 +151,7 @@ class Car:
             if isinstance(collision, Car):
                 self.statistics.current.speed *= 0.2
             else:
-                self.statistics.current.timeout += 1
+                self.statistics.current.tolerance += 1
                 self.statistics.current.speed *= 0.9
 
     def reset_to_last_checkpoint(self):

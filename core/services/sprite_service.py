@@ -67,7 +67,7 @@ class SpriteService(ServiceBase):
 
             self.library[type][name] = Sprite(
                 spritesheet.get_sprite(name),
-                spritesheet.get_mask_from_layer(name, 1),
+                spritesheet.get_mask_from_layer(name, 0),
                 name,
                 next_id,
                 type,

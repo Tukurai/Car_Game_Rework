@@ -1,4 +1,3 @@
-from ast import Tuple
 import copy
 import pygame
 from core.position import Position
@@ -29,10 +28,16 @@ class Sprite:
         self.scale = scale
         self.opacity = opacity
 
+        self.__scaled_surface = None
+        self.__scaled_mask = None
+
     def draw(self, screen: pygame.Surface, opacity: int = 255):
         self.opacity = opacity
 
         sprite, offset = self.get_sprite()
+        if self.mask is not None:
+            sprite, offset = self.get_mask()
+
         screen.blit(sprite, self.position + offset)
 
     def copy(self):
@@ -47,30 +52,36 @@ class Sprite:
 
     def get_mask(self) -> tuple[pygame.Surface | None, Position]:
         """Returns a scaled, rotated surface, and mask, also return the center offset as a Position"""
-        mask, offset = self.__get_transformed_surface(self.mask)
+        if self.__scaled_mask is None:
+            self.__scaled_mask = pygame.transform.scale(self.mask, self.get_scaled_size())
+        mask = self.__scaled_mask
+
+        mask, offset = self.__get_transformed_surface(mask, False)
         return (mask, offset)
     
     def get_sprite(self) -> tuple[pygame.Surface, Position]:
         """Returns a scaled, rotated surface, and mask with opacity, also return the center offset as a Position"""
-        sprite, offset = self.__get_transformed_surface(self.surface)
+        if self.__scaled_surface is None:
+            self.__scaled_surface = pygame.transform.scale(self.surface, self.get_scaled_size())
+        surface = self.__scaled_surface
+
+        sprite, offset = self.__get_transformed_surface(surface, True)
         return (sprite, offset)
 
-    def __get_transformed_surface(self, surface) -> tuple[pygame.Surface, Position]:
+    def __get_transformed_surface(self, surface, has_opacity) -> tuple[pygame.Surface, Position]:
         """Returns a scaled, rotated surface with opacity, also return the center offset as a Position"""
-        surface = pygame.transform.scale(surface, self.get_scaled_size())
-
         center_offset = Position((0, 0))
         if self.rotation is not None:
             # Create a new surface with the image, rotated
+            old_center = surface.get_rect().center
             surface = pygame.transform.rotate(surface, -self.rotation)
-            # Calculate the new upper left corner position of the rotated car
             rect = surface.get_rect()
-            original_rect = surface.get_rect(topleft=(self.position.x, self.position.y))
+            rect.center = old_center
 
-            center_offset.x = original_rect.centerx - rect.centerx
-            center_offset.y = original_rect.centery - rect.centery
+            center_offset = Position((-(surface.get_width() / 2), -(surface.get_height() / 2)))
 
-        surface = surface.convert_alpha()
-        surface.set_alpha(self.opacity)
+        if has_opacity:
+            surface = surface.convert_alpha()
+            surface.set_alpha(self.opacity)
 
         return (surface, center_offset)

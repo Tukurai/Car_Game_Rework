@@ -12,6 +12,7 @@ class Settings:
     TILE_SIZE = 128
     MAX_PLAYERS = 4
     TRANSITION_SPEED = 1  # speed in seconds
+    PLAYER_TO_PLAYER_COLLISION = True
     SCALE = {
         SpriteType.GLOBAL: 1.0,
         SpriteType.OBJECT: 0.75,

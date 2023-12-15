@@ -44,6 +44,7 @@ class Spritesheet:
                 )
                 for layer in range(self.mask_layer_amount)
             }
+        return self._mask_layers
 
     def load_image(self, file_path: Path):
         """Loads an image from a file path."""
@@ -82,7 +83,7 @@ class Spritesheet:
 
     def get_mask_from_layer(self, name: str, mask_layer: int):
         """Get a mask from a layer of the sprite sheet."""
-        if self.mask_layer_amount == 0 or mask_layer >= self.mask_layer_amount:
+        if self.mask_layer_amount == 0 or mask_layer > self.mask_layer_amount:
             return None
 
         x, y, w, h = self.get_sprite_atlas()[name].values()

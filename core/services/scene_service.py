@@ -9,6 +9,7 @@ from core.enums.log_level import LogLevel
 from core.enums.scene import Scene
 from core.event_handler import EventHandler
 from core.position import Position
+from core.services.collision_service import CollisionService
 from core.services.log_service import LogService
 from core.services.map_service import MapService
 from core.services.service_base import ServiceBase
@@ -30,6 +31,7 @@ class SceneService(ServiceBase):
         sprite_service: SpriteService,
         sound_service: SoundService,
         map_service: MapService,
+        collision_service: CollisionService,
         settings: Settings,
         screen: pygame.Surface,
     ):
@@ -38,6 +40,7 @@ class SceneService(ServiceBase):
         self.services.sprite = sprite_service
         self.services.sound = sound_service
         self.services.map = map_service
+        self.services.collision = collision_service
         self.services.scene = self
         self.scenes = []
         self.active_scene = None

@@ -1,5 +1,4 @@
 from types import SimpleNamespace
-from core.car_properties import CarProperties
 from core.enums.sprite_type import SpriteType
 from core.enums.log_level import LogLevel
 
@@ -12,7 +11,8 @@ class Settings:
     TILE_SIZE = 128
     MAX_PLAYERS = 4
     TRANSITION_SPEED = 1  # speed in seconds
-    PLAYER_TO_PLAYER_COLLISION = True
+    PLAYER_TO_PLAYER_COLLISION = False
+    DRAW_MASKS = False
     SCALE = {
         SpriteType.GLOBAL: 1.0,
         SpriteType.OBJECT: 0.75,
@@ -21,14 +21,14 @@ class Settings:
         SpriteType.UI: 1.0,
     }
     CAR_OPTIONS = car_options = [
-        ("Black", "car_black_small_1.png", CarProperties(180, 2, 3, 1.0, 30, 6)),
-        ("Red", "car_red_small_1.png", CarProperties(240, 2, 3, 1.0, 25, 6)),
-        ("Yellow", "car_yellow_small_1.png", CarProperties(220, 2, 3, 1.0, 27, 6)),
-        ("Green", "car_green_small_1.png", CarProperties(160, 2, 3, 1.0, 35, 6)),
-        ("Blue", "car_blue_small_1.png", CarProperties(280, 2, 3, 1.0, 20, 6)),
+        ("Black", "car_black_small_1.png", (60, 2, 6, 1, 30, 6)),
+        ("Red", "car_red_small_1.png", (70, 2, 6, 1, 25, 6)),
+        ("Yellow", "car_yellow_small_1.png", (65, 2, 6, 1, 27, 6)),
+        ("Green", "car_green_small_1.png", (50, 2, 6, 1, 35, 6)),
+        ("Blue", "car_blue_small_1.png", (80, 2, 6, 1, 20, 6)),
     ]
     LOG_LEVEL = LogLevel.DEBUG
-    FPS = 60
+    FPS = 30
 
     def __init__(self) -> None:
         self.resolution = (1920, 1080)

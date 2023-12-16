@@ -160,7 +160,7 @@ class RaceScene(SceneBase):
                 f"{color} C-{index}",
                 self.services.sprite.get_sprite_from(SpriteType.VEHICLE, sprite),
                 Position((0, 0)),
-                properties,
+                CarProperties(*properties),
             )
             for color, sprite, properties in Settings.CAR_OPTIONS
         ]

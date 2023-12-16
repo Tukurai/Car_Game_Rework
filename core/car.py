@@ -35,7 +35,7 @@ class Car:
         self.penalties = 0
         self.place = 0
 
-        self.sprite.position = Relative(self.position, (0, 0))
+        self.sprite.position = self.position
 
         self.name_label = LabelComponent(
             f"{self.name}_name",
@@ -57,7 +57,7 @@ class Car:
         """Set the position of the car, also altering the sprite position relatively.
         Replacing the position property will not alter the sprite position."""
         self.position = position
-        self.sprite.position = Relative(self.position, (0, 0))
+        self.sprite.position = self.position
         self.name_label.position = Relative(self.position, (0, -20))
 
     def set_rotation(self, rotation: float):
@@ -89,9 +89,15 @@ class Car:
     def apply_drag(self):
         """Apply drag to the car, decreasing the speed."""
         speed = self.statistics.current.speed
+        if speed == 0:
+            return
+
         drag = self.properties.drag
 
-        self.statistics.current.speed = speed - drag if speed > 0 else speed + drag
+        if drag > abs(speed):
+            self.statistics.current.speed = 0
+        else:
+            self.statistics.current.speed = speed - drag if speed > 0 else speed + drag
 
     def speed_limiter(self, speed_mod: int) -> int:
         """Limit the speed of the car."""
@@ -111,7 +117,13 @@ class Car:
             case Direction.UP:
                 current_speed = self.speed_limiter(properties.acceleration)
             case Direction.DOWN:
-                current_speed = self.speed_limiter(-(properties.braking))
+                current_speed = self.speed_limiter(
+                    -(
+                        properties.braking
+                        if self.statistics.current.speed > 0
+                        else properties.acceleration
+                    )
+                )
             case Direction.LEFT:
                 if current_speed != 0:
                     self.rotation_direction = Direction.LEFT
@@ -143,7 +155,8 @@ class Car:
             self.reset_to_last_checkpoint()
             return
 
-        self.set_position(Position((direction_x, direction_y)))
+        new_position = Position(self.position + Position((direction_x, direction_y)))
+        self.set_position(new_position)
 
     def handle_collisions(self, collisions):
         """Handle collisions with other objects."""
@@ -157,6 +170,6 @@ class Car:
     def reset_to_last_checkpoint(self):
         """Reset the car to the last checkpoint."""
         self.penalties += 1
-        self.statistics.current.timeout = 0
+        self.statistics.current.tolerance = 0
         self.statistics.current.speed = 0
         self.events.on_car_reset.notify(self)

@@ -34,15 +34,13 @@ class CollisionService(ServiceBase):
         for i in range(len(players)):
             for j in range(i + 1, len(players)):
                 sprite_i = players[i].sprite
-                mask_i, offset_i = sprite_i.get_mask()
-                mask_i =  pygame.mask.from_surface(mask_i)
-                pos_i = Position(sprite_i.position + offset_i)
+                mask_i, offset_i, _ = sprite_i.get_mask()
+                pos_i = Position(sprite_i.position.get_absolute_pos() + offset_i)
                 sprite_j = players[j].sprite
-                mask_j, offset_j = sprite_j.get_mask()
-                mask_j =  pygame.mask.from_surface(mask_j)
-                pos_j = Position(sprite_j.position + offset_j)
+                mask_j, offset_j, _ = sprite_j.get_mask()
+                pos_j = Position(sprite_j.position.get_absolute_pos() + offset_j)
 
-                if mask_i.overlap(mask_j, pos_j - pos_i):
+                if mask_i.overlap(mask_j, pos_j.get_offset_between_pos(pos_i)):
                     # Collision detected, add to collisions dict
                     collisions[players[i]].append(players[j])
                     collisions[players[j]].append(players[i])
@@ -51,14 +49,12 @@ class CollisionService(ServiceBase):
         for player in players:
             for sprite_obj in map.road + map.objects:
                 sprite_player = player.sprite
-                mask_player, offset_player = sprite_player.get_mask()
-                mask_player =  pygame.mask.from_surface(mask_player)
-                pos_player = Position(sprite_player.position + offset_player)
+                mask_player, offset_player, _ = sprite_player.get_mask()
+                pos_player = Position(sprite_player.position.get_absolute_pos() + offset_player)
 
-                mask_obj, offset_obj = sprite_obj.get_mask()
-                mask_obj =  pygame.mask.from_surface(mask_obj)
-                pos_obj = Position(sprite_obj.position + offset_obj)
+                mask_obj, offset_obj, _ = sprite_obj.get_mask()
+                pos_obj = Position(sprite_obj.position.get_absolute_pos() + offset_obj)
 
-                if mask_player.overlap(mask_obj, pos_obj - pos_player):
+                if mask_player.overlap(mask_obj, pos_obj.get_offset_between_pos(pos_player)):
                     # Collision detected, add to collisions dict
                     collisions[player].append(sprite_obj)

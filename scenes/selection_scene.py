@@ -176,7 +176,7 @@ class SelectionScene(SceneBase):
                 self.services.sprite.get_sprite_from(SpriteType.VEHICLE, sprite),
                 None,
                 Position((0, 0)),
-                properties,
+                CarProperties(*properties),
             )
             for color, sprite, properties in Settings.CAR_OPTIONS
         ]
